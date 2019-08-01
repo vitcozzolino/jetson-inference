@@ -19,7 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
- 
+
 #ifndef __SEGMENTATION_NET_H__
 #define __SEGMENTATION_NET_H__
 
@@ -59,7 +59,7 @@ public:
 		FCN_ALEXNET_CITYSCAPES_HD,	    /**< FCN-Alexnet trained on Cityscapes dataset with 21 classes. */
 		FCN_ALEXNET_CITYSCAPES_SD,	    /**< FCN-Alexnet trained on Cityscapes dataset with 21 classes. @note To save disk space, this model isn't downloaded by default. Enable it in CMakePreBuild.sh */
 		FCN_ALEXNET_AERIAL_FPV_720p, 	    /**< FCN-Alexnet trained on aerial first-person view of the horizon line for drones, 1280x720 and 21 output classes */
-		
+		FCN_ALEXNET_AERIAL_FPV_720p_CUSTOM,
 		/* add new models here */
 		SEGNET_CUSTOM
 	};
@@ -92,7 +92,7 @@ public:
 	 */
 	static segNet* Create( NetworkType networkType=FCN_ALEXNET_CITYSCAPES_SD, uint32_t maxBatchSize=DEFAULT_MAX_BATCH_SIZE,
 					   precisionType precision=TYPE_FASTEST, deviceType device=DEVICE_GPU, bool allowGPUFallback=true );
-	
+
 	/**
 	 * Load a new network instance
 	 * @param prototxt_path File path to the deployable network prototxt
@@ -103,25 +103,25 @@ public:
 	 * @param output Name of the output layer blob. @see SEGNET_DEFAULT_OUTPUT
 	 * @param maxBatchSize The maximum batch size that the network will support and be optimized for.
 	 */
-	static segNet* Create( const char* prototxt_path, const char* model_path, 
+	static segNet* Create( const char* prototxt_path, const char* model_path,
 					   const char* class_labels, const char* class_colors=NULL,
-					   const char* input = SEGNET_DEFAULT_INPUT, 
+					   const char* input = SEGNET_DEFAULT_INPUT,
 					   const char* output = SEGNET_DEFAULT_OUTPUT,
-					   uint32_t maxBatchSize=DEFAULT_MAX_BATCH_SIZE, 
-					   precisionType precision=TYPE_FASTEST, 
+					   uint32_t maxBatchSize=DEFAULT_MAX_BATCH_SIZE,
+					   precisionType precision=TYPE_FASTEST,
 					   deviceType device=DEVICE_GPU, bool allowGPUFallback=true );
-	
+
 
 	/**
 	 * Load a new network instance by parsing the command line.
 	 */
 	static segNet* Create( int argc, char** argv );
-	
+
 	/**
 	 * Destroy
 	 */
 	virtual ~segNet();
-	
+
 	/**
  	 * Perform the initial inferencing processing portion of the segmentation.
 	 * The results can then be visualized using the Overlay() and Mask() functions.
@@ -169,7 +169,7 @@ public:
 	 * Retrieve the description of a particular class.
 	 */
 	inline const char* GetClassLabel( uint32_t id )	const		{ return id < mClassLabels.size() ? mClassLabels[id].c_str() : NULL; }
-	
+
 	/**
 	 * Retrieve the class synset category of a particular class.
 	 */
@@ -179,7 +179,7 @@ public:
 	 * Set the visualization color of a particular class of object.
 	 */
 	void SetClassColor( uint32_t classIndex, float r, float g, float b, float a=255.0f );
-	
+
 	/**
  	 * Set a global alpha value for all classes (between 0-255),
 	 * (optionally except for those that have been explicitly set).
@@ -215,21 +215,21 @@ public:
 
 protected:
 	segNet();
-	
+
 	bool classify( const char* ignore_class );
 
 	bool overlayPoint( float* input, uint32_t in_width, uint32_t in_height, float* output, uint32_t out_width, uint32_t out_height, bool mask_only );
 	bool overlayLinear( float* input, uint32_t in_width, uint32_t in_height, float* output, uint32_t out_width, uint32_t out_height, bool mask_only );
-	
+
 	bool loadClassColors( const char* filename );
 	bool loadClassLabels( const char* filename );
-	
+
 	std::vector<std::string> mClassLabels;
 	std::string mClassPath;
 
 	float*   mClassColors[2];	/**< array of overlay colors in shared CPU/GPU memory */
 	uint8_t* mClassMap[2];		/**< runtime buffer for the argmax-classified class index of each tile */
-	
+
 	float*   mLastInputImg;		/**< last input image to be processed, stored for overlay */
 	uint32_t mLastInputWidth;	/**< width in pixels of last input image to be processed */
 	uint32_t mLastInputHeight;	/**< height in pixels of last input image to be processed */
@@ -239,4 +239,3 @@ protected:
 
 
 #endif
-

@@ -19,13 +19,13 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
- 
+
 #ifndef __PYTHON_BINDINGS_INFERENCE__
 #define __PYTHON_BINDINGS_INFERENCE__
 
 #include <Python.h>
 
-// user-facing module name 
+// user-facing module name
 #define PY_INFERENCE_MODULE_NAME "jetson.inference"
 
 // logging prefix
@@ -93,4 +93,3 @@
 #endif
 
 #endif
-

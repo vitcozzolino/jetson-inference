@@ -19,7 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
- 
+
 #include "segNet.h"
 #include "imageNet.cuh"
 
@@ -51,7 +51,7 @@ segNet::segNet() : tensorNet()
 // destructor
 segNet::~segNet()
 {
-	
+
 }
 
 
@@ -92,6 +92,8 @@ segNet::NetworkType segNet::NetworkTypeFromStr( const char* modelName )
 		type = segNet::FCN_ALEXNET_SYNTHIA_SUMMER_HD;
 	else if( strcasecmp(modelName, "aerial-fpv") == 0 || strcasecmp(modelName, "aerial-fpv-720p") == 0 || strcasecmp(modelName, "fcn-alexnet-aerial-fpv-720p") == 0 )
 		type = segNet::FCN_ALEXNET_AERIAL_FPV_720p;
+	else if( strcasecmp(modelName, "aerial-fpv-custom") == 0)
+		type = segNet::FCN_ALEXNET_AERIAL_FPV_720p_CUSTOM;
 	else
 		type = segNet::SEGNET_CUSTOM;
 
@@ -110,17 +112,19 @@ segNet* segNet::Create( NetworkType networkType, uint32_t maxBatchSize,
 	else if( networkType == FCN_ALEXNET_SYNTHIA_CVPR16 )
 		net = Create("networks/FCN-Alexnet-SYNTHIA-CVPR16/deploy.prototxt", "networks/FCN-Alexnet-SYNTHIA-CVPR16/snapshot_iter_1206700.caffemodel", "networks/FCN-Alexnet-SYNTHIA-CVPR16/synthia-cvpr16-labels.txt", "networks/FCN-Alexnet-SYNTHIA-CVPR16/synthia-cvpr16-train-colors.txt", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize, precision, device, allowGPUFallback );
 	else if( networkType == FCN_ALEXNET_SYNTHIA_SUMMER_HD )
-		net = Create("networks/FCN-Alexnet-SYNTHIA-Summer-HD/deploy.prototxt", "networks/FCN-Alexnet-SYNTHIA-Summer-HD/snapshot_iter_902888.caffemodel", "networks/FCN-Alexnet-SYNTHIA-Summer-HD/synthia-seq-labels.txt", "networks/FCN-Alexnet-SYNTHIA-Summer-HD/synthia-seq-train-colors.txt", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize, precision, device, allowGPUFallback );	
+		net = Create("networks/FCN-Alexnet-SYNTHIA-Summer-HD/deploy.prototxt", "networks/FCN-Alexnet-SYNTHIA-Summer-HD/snapshot_iter_902888.caffemodel", "networks/FCN-Alexnet-SYNTHIA-Summer-HD/synthia-seq-labels.txt", "networks/FCN-Alexnet-SYNTHIA-Summer-HD/synthia-seq-train-colors.txt", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize, precision, device, allowGPUFallback );
 	else if( networkType == FCN_ALEXNET_SYNTHIA_SUMMER_SD )
-		net = Create("networks/FCN-Alexnet-SYNTHIA-Summer-SD/deploy.prototxt", "networks/FCN-Alexnet-SYNTHIA-Summer-SD/snapshot_iter_431816.caffemodel", "networks/FCN-Alexnet-SYNTHIA-Summer-SD/synthia-seq-labels.txt", "networks/FCN-Alexnet-SYNTHIA-Summer-SD/synthia-seq-train-colors.txt", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize, precision, device, allowGPUFallback );		
+		net = Create("networks/FCN-Alexnet-SYNTHIA-Summer-SD/deploy.prototxt", "networks/FCN-Alexnet-SYNTHIA-Summer-SD/snapshot_iter_431816.caffemodel", "networks/FCN-Alexnet-SYNTHIA-Summer-SD/synthia-seq-labels.txt", "networks/FCN-Alexnet-SYNTHIA-Summer-SD/synthia-seq-train-colors.txt", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize, precision, device, allowGPUFallback );
 	else if( networkType == FCN_ALEXNET_CITYSCAPES_HD )
-		net = Create("networks/FCN-Alexnet-Cityscapes-HD/deploy.prototxt", "networks/FCN-Alexnet-Cityscapes-HD/snapshot_iter_367568.caffemodel", "networks/FCN-Alexnet-Cityscapes-HD/cityscapes-labels.txt", "networks/FCN-Alexnet-Cityscapes-HD/cityscapes-deploy-colors.txt", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize, precision, device, allowGPUFallback );	
+		net = Create("networks/FCN-Alexnet-Cityscapes-HD/deploy.prototxt", "networks/FCN-Alexnet-Cityscapes-HD/snapshot_iter_367568.caffemodel", "networks/FCN-Alexnet-Cityscapes-HD/cityscapes-labels.txt", "networks/FCN-Alexnet-Cityscapes-HD/cityscapes-deploy-colors.txt", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize, precision, device, allowGPUFallback );
 	else if( networkType == FCN_ALEXNET_CITYSCAPES_SD )
-		net = Create("networks/FCN-Alexnet-Cityscapes-SD/deploy.prototxt", "networks/FCN-Alexnet-Cityscapes-SD/snapshot_iter_114860.caffemodel", "networks/FCN-Alexnet-Cityscapes-SD/cityscapes-labels.txt", "networks/FCN-Alexnet-Cityscapes-SD/cityscapes-deploy-colors.txt", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize, precision, device, allowGPUFallback );		
+		net = Create("networks/FCN-Alexnet-Cityscapes-SD/deploy.prototxt", "networks/FCN-Alexnet-Cityscapes-SD/snapshot_iter_114860.caffemodel", "networks/FCN-Alexnet-Cityscapes-SD/cityscapes-labels.txt", "networks/FCN-Alexnet-Cityscapes-SD/cityscapes-deploy-colors.txt", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize, precision, device, allowGPUFallback );
 	//else if( networkType == FCN_ALEXNET_AERIAL_FPV_720p_4ch )
-	//	net = Create("FCN-Alexnet-Aerial-FPV-4ch-720p/deploy.prototxt", "FCN-Alexnet-Aerial-FPV-4ch-720p/snapshot_iter_1777146.caffemodel", "FCN-Alexnet-Aerial-FPV-4ch-720p/fpv-labels.txt", "FCN-Alexnet-Aerial-FPV-4ch-720p/fpv-deploy-colors.txt", "data", "score_fr_4classes", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize );			
+	//	net = Create("FCN-Alexnet-Aerial-FPV-4ch-720p/deploy.prototxt", "FCN-Alexnet-Aerial-FPV-4ch-720p/snapshot_iter_1777146.caffemodel", "FCN-Alexnet-Aerial-FPV-4ch-720p/fpv-labels.txt", "FCN-Alexnet-Aerial-FPV-4ch-720p/fpv-deploy-colors.txt", "data", "score_fr_4classes", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize );
 	else if( networkType == FCN_ALEXNET_AERIAL_FPV_720p )
-		net = Create("networks/FCN-Alexnet-Aerial-FPV-720p/fcn_alexnet.deploy.prototxt", "networks/FCN-Alexnet-Aerial-FPV-720p/snapshot_iter_10280.caffemodel", "networks/FCN-Alexnet-Aerial-FPV-720p/fpv-labels.txt", "networks/FCN-Alexnet-Aerial-FPV-720p/fpv-deploy-colors.txt", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize, precision, device, allowGPUFallback );		
+		net = Create("networks/FCN-Alexnet-Aerial-FPV-720p/fcn_alexnet.deploy.prototxt", "networks/FCN-Alexnet-Aerial-FPV-720p/snapshot_iter_10280.caffemodel", "networks/FCN-Alexnet-Aerial-FPV-720p/fpv-labels.txt", "networks/FCN-Alexnet-Aerial-FPV-720p/fpv-deploy-colors.txt", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize, precision, device, allowGPUFallback );
+	else if( networkType == FCN_ALEXNET_AERIAL_FPV_720p_CUSTOM )
+		net = Create("networks/FCN-Alexnet-Aerial-FPV-720p-custom/deploy.prototxt", "networks/FCN-Alexnet-Aerial-FPV-720p-custom/snapshot_iter_135660.caffemodel", "networks/FCN-Alexnet-Aerial-FPV-720p-custom/fpv-labels.txt", "networks/FCN-Alexnet-Aerial-FPV-720p-custom/fpv-deploy-colors.txt", SEGNET_DEFAULT_INPUT, "score_fr", maxBatchSize, precision, device, allowGPUFallback );
 	else
 		return NULL;
 
@@ -141,7 +145,7 @@ segNet* segNet::Create( int argc, char** argv )
 		modelName = cmdLine.GetString("network", "fcn-alexnet-cityscapes-sd");
 
 		/*if( argc > 3 )
-			modelName = argv[3];*/	
+			modelName = argv[3];*/
 
 		segNet::NetworkType type = segNet::SEGNET_CUSTOM;
 
@@ -159,6 +163,8 @@ segNet* segNet::Create( int argc, char** argv )
 			type = segNet::FCN_ALEXNET_SYNTHIA_SUMMER_HD;
 		else if( strcasecmp(modelName, "fcn-alexnet-aerial-fpv-720p") == 0 )
 			type = segNet::FCN_ALEXNET_AERIAL_FPV_720p;
+		else if( strcasecmp(modelName, "fcn-alexnet-aerial-fpv-custom") == 0 )
+			type = segNet::FCN_ALEXNET_AERIAL_FPV_720p_CUSTOM;
 		/*else if( strcasecmp(modelName, "fcn-alexnet-aerial-fpv-720p-4ch") == 0 )
 			type = segNet::FCN_ALEXNET_AERIAL_FPV_720p_4ch;
 		else if( strcasecmp(modelName, "fcn-alexnet-aerial-fpv-720p-21ch") == 0 )
@@ -179,23 +185,23 @@ segNet* segNet::Create( int argc, char** argv )
 		if( !output )  output = SEGNET_DEFAULT_OUTPUT;
 
 		int maxBatchSize = cmdLine.GetInt("batch_size");
-		
+
 		if( maxBatchSize < 1 )
 			maxBatchSize = DEFAULT_MAX_BATCH_SIZE;
-		
+
 		return segNet::Create(prototxt, modelName, labels, colors, input, output, maxBatchSize);
 	}
 }
 
 
 // Create
-segNet* segNet::Create( const char* prototxt, const char* model, const char* labels_path, const char* colors_path, 
+segNet* segNet::Create( const char* prototxt, const char* model, const char* labels_path, const char* colors_path,
 				    const char* input_blob, const char* output_blob, uint32_t maxBatchSize,
 				    precisionType precision, deviceType device, bool allowGPUFallback )
 {
 	// create segmentation model
 	segNet* net = new segNet();
-	
+
 	if( !net )
 		return NULL;
 
@@ -208,28 +214,28 @@ segNet* segNet::Create( const char* prototxt, const char* model, const char* lab
 	printf("       -- input_blob  '%s'\n", input_blob);
 	printf("       -- output_blob '%s'\n", output_blob);
 	printf("       -- batch_size  %u\n\n", maxBatchSize);
-	
-	//net->EnableProfiler();	
+
+	//net->EnableProfiler();
 	//net->EnableDebug();
 	//net->DisableFP16();		// debug;
 
 	// load network
 	std::vector<std::string> output_blobs;
 	output_blobs.push_back(output_blob);
-	
+
 	if( !net->LoadNetwork(prototxt, model, NULL, input_blob, output_blobs, maxBatchSize,
 					  precision, device, allowGPUFallback) )
 	{
 		printf("segNet -- failed to initialize.\n");
 		return NULL;
 	}
-	
+
 	// initialize array of class colors
 	const uint32_t numClasses = net->GetNumClasses();
-	
+
 	if( !cudaAllocMapped((void**)&net->mClassColors[0], (void**)&net->mClassColors[1], numClasses * sizeof(float4)) )
 		return NULL;
-	
+
 	for( uint32_t n=0; n < numClasses; n++ )
 	{
 		net->mClassColors[0][n*4+0] = 255.0f;	// r
@@ -237,12 +243,12 @@ segNet* segNet::Create( const char* prototxt, const char* model, const char* lab
 		net->mClassColors[0][n*4+2] = 0.0f;	// b
 		net->mClassColors[0][n*4+3] = 255.0f;	// a
 	}
-	
+
 	// initialize array of classified argmax
 	const int s_w = DIMS_W(net->mOutputs[0].dims);
 	const int s_h = DIMS_H(net->mOutputs[0].dims);
 	const int s_c = DIMS_C(net->mOutputs[0].dims);
-		
+
 	printf(LOG_TRT "segNet outputs -- s_w %i  s_h %i  s_c %i\n", s_w, s_h, s_c);
 
 	if( !cudaAllocMapped((void**)&net->mClassMap[0], (void**)&net->mClassMap[1], s_w * s_h * sizeof(uint8_t)) )
@@ -251,7 +257,7 @@ segNet* segNet::Create( const char* prototxt, const char* model, const char* lab
 	// load class info
 	net->loadClassColors(colors_path);
 	net->loadClassLabels(labels_path);
-	
+
 	return net;
 }
 
@@ -261,7 +267,7 @@ bool segNet::loadClassColors( const char* filename )
 {
 	if( !filename )
 		return false;
-	
+
 	// locate the file
 	const std::string path = locateFile(filename);
 
@@ -273,13 +279,13 @@ bool segNet::loadClassColors( const char* filename )
 
 	// open the file
 	FILE* f = fopen(path.c_str(), "r");
-	
+
 	if( !f )
 	{
 		printf("segNet -- failed to open %s\n", path.c_str());
 		return false;
 	}
-	
+
 	// read class colors
 	char str[512];
 	int  idx = 0;
@@ -287,7 +293,7 @@ bool segNet::loadClassColors( const char* filename )
 	while( fgets(str, 512, f) != NULL )
 	{
 		const int len = strlen(str);
-		
+
 		if( len > 0 )
 		{
 			if( str[len-1] == '\n' )
@@ -301,17 +307,17 @@ bool segNet::loadClassColors( const char* filename )
 			sscanf(str, "%i %i %i %i", &r, &g, &b, &a);
 			printf("segNet -- class %02i  color %i %i %i %i\n", idx, r, g, b, a);
 			SetClassColor(idx, r, g, b, a);
-			idx++; 
+			idx++;
 		}
 	}
-	
+
 	fclose(f);
-	
+
 	printf("segNet -- loaded %i class colors\n", idx);
-	
+
 	if( idx == 0 )
 		return false;
-	
+
 	return true;
 }
 
@@ -321,7 +327,7 @@ bool segNet::loadClassLabels( const char* filename )
 {
 	if( !filename )
 		return false;
-	
+
 	// locate the file
 	const std::string path = locateFile(filename);
 
@@ -333,20 +339,20 @@ bool segNet::loadClassLabels( const char* filename )
 
 	// open the file
 	FILE* f = fopen(path.c_str(), "r");
-	
+
 	if( !f )
 	{
 		printf("segNet -- failed to open %s\n", path.c_str());
 		return false;
 	}
-	
+
 	// read class labels
 	char str[512];
 
 	while( fgets(str, 512, f) != NULL )
 	{
 		const int len = strlen(str);
-		
+
 		if( len > 0 )
 		{
 			if( str[len-1] == '\n' )
@@ -356,14 +362,14 @@ bool segNet::loadClassLabels( const char* filename )
 			mClassLabels.push_back(str);
 		}
 	}
-	
+
 	fclose(f);
-	
+
 	printf("segNet -- loaded %zu class labels\n", mClassLabels.size());
-	
+
 	if( mClassLabels.size() == 0 )
 		return false;
-	
+
 	mClassPath = path;
 	return true;
 }
@@ -374,9 +380,9 @@ void segNet::SetClassColor( uint32_t classIndex, float r, float g, float b, floa
 {
 	if( classIndex >= GetNumClasses() || !mClassColors[0] )
 		return;
-	
+
 	const uint32_t i = classIndex * 4;
-	
+
 	mClassColors[0][i+0] = r;
 	mClassColors[0][i+1] = g;
 	mClassColors[0][i+2] = b;
@@ -435,10 +441,10 @@ bool segNet::Process( float* rgba, uint32_t width, uint32_t height, const char* 
 
 	PROFILER_END(PROFILER_PREPROCESS);
 	PROFILER_BEGIN(PROFILER_NETWORK);
-	
+
 	// process with TensorRT
 	void* inferenceBuffers[] = { mInputCUDA, mOutputs[0].CUDA };
-	
+
 	if( !mContext->execute(1, inferenceBuffers) )
 	{
 		printf(LOG_TRT "segNet::Process() -- failed to execute TensorRT context\n");
@@ -472,7 +478,7 @@ bool segNet::classify( const char* ignore_class )
 	const int s_w = DIMS_W(mOutputs[0].dims);
 	const int s_h = DIMS_H(mOutputs[0].dims);
 	const int s_c = DIMS_C(mOutputs[0].dims);
-		
+
 	//const float s_x = float(width) / float(s_w);		// TODO bug: this should use mWidth/mHeight dimensions, in case user dimensions are different
 	//const float s_y = float(height) / float(s_h);
 	const float s_x = float(s_w) / float(mWidth);
@@ -481,7 +487,7 @@ bool segNet::classify( const char* ignore_class )
 
 	// if desired, find the ID of the class to ignore (typically void)
 	const int ignoreID = FindClassID(ignore_class);
-	
+
 	//printf(LOG_TRT "segNet::Process -- s_w %i  s_h %i  s_c %i  s_x %f  s_y %f\n", s_w, s_h, s_c, s_x, s_y);
 	//printf(LOG_TRT "segNet::Process -- ignoring class '%s' id=%i\n", ignore_class, ignoreID);
 
@@ -525,9 +531,9 @@ bool segNet::Mask( uint8_t* output, uint32_t out_width, uint32_t out_height )
 {
 	if( !output || out_width == 0 || out_height == 0 )
 	{
-		printf("segNet::Mask( 0x%p, %u, %u ) -> invalid parameters\n", output, out_width, out_height); 
+		printf("segNet::Mask( 0x%p, %u, %u ) -> invalid parameters\n", output, out_width, out_height);
 		return false;
-	}	
+	}
 
 	PROFILER_BEGIN(PROFILER_VISUALIZE);
 
@@ -536,7 +542,7 @@ bool segNet::Mask( uint8_t* output, uint32_t out_width, uint32_t out_height )
 
 	const int s_w = DIMS_W(mOutputs[0].dims);
 	const int s_h = DIMS_H(mOutputs[0].dims);
-		
+
 	const float s_x = float(s_w) / float(out_width);
 	const float s_y = float(s_h) / float(out_height);
 
@@ -567,9 +573,9 @@ bool segNet::Mask( float* output, uint32_t width, uint32_t height, FilterMode fi
 {
 	if( !output || width == 0 || height == 0 )
 	{
-		printf("segNet::Mask( 0x%p, %u, %u ) -> invalid parameters\n", output, width, height); 
+		printf("segNet::Mask( 0x%p, %u, %u ) -> invalid parameters\n", output, width, height);
 		return false;
-	}	
+	}
 
 	// filter in point or linear
 	if( filter == FILTER_POINT )
@@ -586,10 +592,10 @@ bool segNet::Overlay( float* output, uint32_t width, uint32_t height, FilterMode
 {
 	if( !output || width == 0 || height == 0 )
 	{
-		printf("segNet::Overlay( 0x%p, %u, %u ) -> invalid parameters\n", output, width, height); 
+		printf("segNet::Overlay( 0x%p, %u, %u ) -> invalid parameters\n", output, width, height);
 		return false;
-	}	
-	
+	}
+
 	if( !mLastInputImg )
 	{
 		printf(LOG_TRT "segNet -- Process() must be called before Overlay()\n");
@@ -606,7 +612,7 @@ bool segNet::Overlay( float* output, uint32_t width, uint32_t height, FilterMode
 }
 
 
-#define OVERLAY_CUDA 
+#define OVERLAY_CUDA
 
 // declaration from segNet.cu
 cudaError_t cudaSegOverlay( float4* input, uint32_t in_width, uint32_t in_height,
@@ -672,7 +678,7 @@ bool segNet::overlayPoint( float* input, uint32_t in_width, uint32_t in_height, 
 				const uint32_t y_in = float(y) / float(out_height) * float(in_height);
 
 				float* px_in = input + (((y_in * in_width * 4) + x_in * 4));
-				
+
 				const float alph = c_color[3] / 255.0f;
 				const float inva = 1.0f - alph;
 
@@ -719,12 +725,12 @@ bool segNet::overlayLinear( float* input, uint32_t in_width, uint32_t in_height,
 	{
 		for( uint32_t x=0; x < out_width; x++ )
 		{
-			const float cx = float(x) * s_x;	
+			const float cx = float(x) * s_x;
 			const float cy = float(y) * s_y;
 
 			const int x1 = int(cx);
 			const int y1 = int(cy);
-			
+
 			const int x2 = x1 + 1;
 			const int y2 = y1 + 1;
 
@@ -746,11 +752,11 @@ bool segNet::overlayLinear( float* input, uint32_t in_width, uint32_t in_height,
 						 GetClassColor(classIdx[2]),
 						 GetClassColor(classIdx[3]) };
 
-			
+
 			// compute bilinear weights
 			const float x1d = cx - float(x1);
 			const float y1d = cy - float(y1);
-		
+
 			const float x2d = 1.0f - x1d;
 			const float y2d = 1.0f - y1d;
 
@@ -772,7 +778,7 @@ bool segNet::overlayLinear( float* input, uint32_t in_width, uint32_t in_height,
 				if( x2d > y2d )			c_index = 1;
 				else						c_index = 0;
 			}*/
-			
+
 			//float* c_color = GetClassColor(classIdx[c_index]);
 			//printf("x %u y %u cx %f cy %f  x1d %f y1d %f  x2d %f y2d %f  c %i\n", x, y, cx, cy, x1d, y1d, x2d, y2d, c_index);
 
@@ -799,7 +805,7 @@ bool segNet::overlayLinear( float* input, uint32_t in_width, uint32_t in_height,
 				const int y_in = float(y) / float(out_height) * float(in_height);
 
 				float* px_in = input + (((y_in * in_width * 4) + x_in * 4));
-				
+
 				const float alph = c_color[3] / 255.0f;
 				const float inva = 1.0f - alph;
 
@@ -814,5 +820,3 @@ bool segNet::overlayLinear( float* input, uint32_t in_width, uint32_t in_height,
 	PROFILER_END(PROFILER_VISUALIZE);
 	return true;
 }
-	
-	
