@@ -27,6 +27,110 @@
 
 #include "../../utils/python/bindings/PyCUDA.h"
 
+
+typedef struct {
+	PyObject_HEAD
+	segNet::Segmentation seg;
+} PySegmentation_Object;
+
+#define DOC_SEGMENTATION "Image Segmentation Result\n\n" \
+				  "----------------------------------------------------------------------\n" \
+				  "Data descriptors defined here:\n\n" \
+				  "Image Bytes\n"
+
+// New
+static PyObject* PySegmentation_New( PyTypeObject* type, PyObject* args, PyObject* kwds )
+{
+	printf(LOG_PY_INFERENCE "PySegmentation_New()\n");
+
+	// allocate a new container
+	PySegmentation_Object* self = (PySegmentation_Object*)type->tp_alloc(type, 0);
+
+	if( !self )
+	{
+		PyErr_SetString(PyExc_MemoryError, LOG_PY_INFERENCE "segNet.Segmentation tp_alloc() failed to allocate a new object");
+		return NULL;
+	}
+
+	self->seg.Reset();
+	return (PyObject*)self;
+}
+
+
+// Init
+static int PySegmentation_Init( PySegmentation_Object* self, PyObject* args, PyObject* kwds )
+{
+	printf(LOG_PY_INFERENCE "PySegmentation_Init()\n");
+
+	// parse arguments
+	uint32_t imageBytes = 0;
+
+	static char* kwlist[] = {"imageBytes", NULL};
+
+	if( !PyArg_ParseTupleAndKeywords(args, kwds, "|s", kwlist, &imageBytes))
+	{
+		PyErr_SetString(PyExc_Exception, LOG_PY_INFERENCE "detectNet.Detection.__init()__ failed to parse args tuple");
+		return -1;
+	}
+
+	// populate struct
+	self->seg.ImageBytes 	 = imageBytes;
+
+	return 0;
+}
+
+// GetImageBytes
+static PyObject* PyDetection_GetImageBytes( PySegmentation_Object* self, void* closure )
+{
+	return PYLONG_FROM_UNSIGNED_LONG(self->seg.ImageBytes);
+}
+
+// SetImageBytes
+static int PyDetection_SetImageBytes( PySegmentation_Object* self, PyObject* value, void* closure )
+{
+	if( !value )
+	{
+		PyErr_SetString(PyExc_TypeError, LOG_PY_INFERENCE "Not permitted to delete detectNet.Detection.Bottom attribute");
+		return -1;
+	}
+
+	const int arg = PYLONG_AS_LONG(value);
+
+	if( PyErr_Occurred() != NULL )
+		return -1;
+
+	self->seg.ImageBytes = arg;
+	return 0;
+}
+
+
+static PyGetSetDef pySegmentation_GetSet[] =
+{
+	{"ImageBytes", (getter)PyDetection_GetImageBytes, (setter)PyDetection_SetImageBytes, "Instance index of the detected object", NULL},
+	{ NULL } /* Sentinel */
+};
+
+static PyMethodDef pySegmentation_Methods[] =
+{
+	{ NULL }  /* Sentinel */
+};
+
+static PyTypeObject pySegmentation_Type =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+};
+
+
+
+// Deallocate
+static void PySegmentation_Dealloc( PySegmentation_Object* self )
+{
+	printf(LOG_PY_INFERENCE "PySegmentation_Dealloc()\n");
+
+	// free the container
+	Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
 //-----------------------------------------------------------------------------------------
 typedef struct {
 	PyTensorNet_Object base;
@@ -212,10 +316,11 @@ static PyObject* PySegNet_Overlay( PySegNet_Object* self, PyObject* args, PyObje
 
 	int width = 0;
 	int height = 0;
+	int mask = 0;
 
-	static char* kwlist[] = {"image", "width", "height", NULL};
+	static char* kwlist[] = {"image", "width", "height", "mask", NULL};
 
-	if( !PyArg_ParseTupleAndKeywords(args, kwds, "Oii|", kwlist, &capsule, &width, &height))
+	if( !PyArg_ParseTupleAndKeywords(args, kwds, "Oiip|", kwlist, &capsule, &width, &height, &mask))
 	{
 		PyErr_SetString(PyExc_Exception, LOG_PY_INFERENCE "segNet.Process() failed to parse args tuple");
 		return NULL;
@@ -241,7 +346,10 @@ static PyObject* PySegNet_Overlay( PySegNet_Object* self, PyObject* args, PyObje
 	//detectNet::Detection* detections = NULL;
 
 	//const int numDetections = self->net->Detect((float*)img, width, height, &detections, overlay > 0 ? detectNet::OVERLAY_BOX/*|detectNet::OVERLAY_LABEL*/ : detectNet::OVERLAY_NONE);
-	const bool success = self->net->Overlay((float*)img, width, height);
+
+	const bool success = mask > 0 ? self->net->Mask((float*)img, width, height) : self->net->Overlay((float*)img, width, height);
+
+	//const bool success = self->net->Overlay((float*)img, width, height);
 
 	if( !success )
 	{
@@ -249,6 +357,11 @@ static PyObject* PySegNet_Overlay( PySegNet_Object* self, PyObject* args, PyObje
 		return NULL;
 	}
 
+	// create output objects
+	// PyObject* pyClass = PYBYTEARRAY_FROM_STRING((char*)img, sizeof(unsigned char) * height * width);
+
+	// return tuple
+	// PyObject* tuple = PyTuple_Pack(1, pyClass);
 
 	// create output objects
 	PyObject* pyClass = PYLONG_FROM_LONG(2.0);
@@ -281,6 +394,27 @@ bool PySegNet_Register( PyObject* module )
 		return false;
 
 	// skipping inner class registration
+	/*
+	 * register detectNet.Detection type
+	 */
+	pySegmentation_Type.tp_name		= PY_INFERENCE_MODULE_NAME ".segNet.Segmentation";
+	pySegmentation_Type.tp_basicsize	= sizeof(PySegmentation_Object);
+	pySegmentation_Type.tp_flags	= Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+	pySegmentation_Type.tp_base		= NULL;
+	pySegmentation_Type.tp_methods	= pySegmentation_Methods;
+	pySegmentation_Type.tp_getset    = pySegmentation_GetSet;
+	pySegmentation_Type.tp_new		= PySegmentation_New;
+	pySegmentation_Type.tp_init		= (initproc)PySegmentation_Init;
+	pySegmentation_Type.tp_dealloc	= (destructor)PySegmentation_Dealloc;
+	pySegmentation_Type.tp_doc		= DOC_SEGMENTATION;
+
+	if( PyType_Ready(&pySegmentation_Type) < 0 )
+	{
+		printf(LOG_PY_INFERENCE "segNet.Segmentation PyType_Ready() failed\n");
+		return false;
+	}
+
+	Py_INCREF(&pySegmentation_Type);
 
 		/*
 	 * register segNet type
@@ -294,6 +428,21 @@ bool PySegNet_Register( PyObject* module )
 	pySegNet_Type.tp_init		= (initproc)PySegNet_Init;
 	pySegNet_Type.tp_dealloc	= NULL; /*(destructor)PySegNet_Dealloc;*/
 	pySegNet_Type.tp_doc		= DOC_SEGNET;
+
+	// setup Detection as inner class for detectNet object
+	pySegNet_Type.tp_dict = PyDict_New();
+
+	if( !pySegNet_Type.tp_dict )
+	{
+		printf(LOG_PY_INFERENCE "segNet failed to create new PyDict object\n");
+		return false;
+	}
+
+	if( PyDict_SetItemString(pySegNet_Type.tp_dict, "Segmentation", (PyObject*)&pySegmentation_Type) < 0 )
+	{
+		printf(LOG_PY_INFERENCE "segNet failed to register segNet.Segmentation inner class\n");
+		return false;
+	}
 
 	// complete registration of the detectNet type
 	if( PyType_Ready(&pySegNet_Type) < 0 )

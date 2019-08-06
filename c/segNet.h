@@ -53,6 +53,7 @@ public:
 	enum NetworkType
 	{
 		FCN_ALEXNET_PASCAL_VOC,		    /**< FCN-Alexnet trained on Pascal VOC dataset. */
+		FCN_ALEXNET_PASCAL_VOC_CUSTOM,
 		FCN_ALEXNET_SYNTHIA_CVPR16,	    /**< FCN-Alexnet trained on SYNTHIA CVPR16 dataset. @note To save disk space, this model isn't downloaded by default. Enable it in CMakePreBuild.sh */
 		FCN_ALEXNET_SYNTHIA_SUMMER_HD,    /**< FCN-Alexnet trained on SYNTHIA SEQS summer datasets. @note To save disk space, this model isn't downloaded by default. Enable it in CMakePreBuild.sh */
 		FCN_ALEXNET_SYNTHIA_SUMMER_SD,    /**< FCN-Alexnet trained on SYNTHIA SEQS summer datasets. @note To save disk space, this model isn't downloaded by default. Enable it in CMakePreBuild.sh */
@@ -63,6 +64,19 @@ public:
 		/* add new models here */
 		SEGNET_CUSTOM
 	};
+
+	struct Segmentation
+	{
+		// Object Info
+		uint32_t ImageBytes;
+
+		/**< Reset all member variables to zero */
+		inline void Reset()								{ ImageBytes = 0; }
+
+		/**< Default constructor */
+		inline Segmentation()								{ Reset(); }
+	};
+
 
 	/**
  	 * Enumeration of mask/overlay filtering modes.
@@ -212,6 +226,7 @@ public:
  	 * Retrieve a string describing the network name.
 	 */
 	inline const char* GetNetworkName() const					{ return (mNetworkType != SEGNET_CUSTOM ? "FCN_Alexnet" : "segNet"); }
+
 
 protected:
 	segNet();

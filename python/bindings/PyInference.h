@@ -43,6 +43,10 @@
 	#define PYLONG_AS_LONG(x)			PyLong_AsLong(x)
 	#endif
 
+	#ifndef PYBYTEARRAY_FROM_STRING
+	#define PYBYTEARRAY_FROM_STRING(x, lenght)			PyByteArray_FromStringAndSize(x, lenght)
+	#endif
+
 	#ifndef PYLONG_FROM_LONG
 	#define PYLONG_FROM_LONG(x)			PyLong_FromLong(x)
 	#endif
@@ -68,6 +72,10 @@
 
 	#ifndef PYLONG_AS_LONG
 	#define PYLONG_AS_LONG(x)			PyInt_AsLong(x)
+	#endif
+
+	#ifndef PYBYTEARRAY_FROM_STRING
+	#define PYBYTEARRAY_FROM_STRING(x, lenght)			PyByteArray_FromStringAndSize(x, lenght)
 	#endif
 
 	#ifndef PYLONG_FROM_LONG

@@ -84,6 +84,8 @@ segNet::NetworkType segNet::NetworkTypeFromStr( const char* modelName )
 		type = segNet::FCN_ALEXNET_CITYSCAPES_HD;
 	else if( strcasecmp(modelName, "pascal-voc") == 0 || strcasecmp(modelName, "fcn-alexnet-pascal-voc") == 0 )
 		type = segNet::FCN_ALEXNET_PASCAL_VOC;
+	else if( strcasecmp(modelName, "pascal-voc-custom") == 0 || strcasecmp(modelName, "fcn-alexnet-pascal-voc-custom") == 0 )
+		type = segNet::FCN_ALEXNET_PASCAL_VOC_CUSTOM;
 	else if( strcasecmp(modelName, "synthia-cvpr16") == 0 || strcasecmp(modelName, "fcn-alexnet-synthia-cvpr16") == 0 )
 		type = segNet::FCN_ALEXNET_SYNTHIA_CVPR16;
 	else if( strcasecmp(modelName, "synthia-summer-sd") == 0 || strcasecmp(modelName, "fcn-alexnet-synthia-summer-sd") == 0 )
@@ -109,6 +111,8 @@ segNet* segNet::Create( NetworkType networkType, uint32_t maxBatchSize,
 
 	if( networkType == FCN_ALEXNET_PASCAL_VOC )
 		net = Create("networks/FCN-Alexnet-Pascal-VOC/deploy.prototxt", "networks/FCN-Alexnet-Pascal-VOC/snapshot_iter_146400.caffemodel", "networks/FCN-Alexnet-Pascal-VOC/pascal-voc-classes.txt", "networks/FCN-Alexnet-Pascal-VOC/pascal-voc-colors.txt", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize, precision, device, allowGPUFallback );
+	else if( networkType == FCN_ALEXNET_PASCAL_VOC_CUSTOM )
+		net = Create("networks/FCN-Alexnet-Pascal-VOC-CUSTOM/deploy.prototxt", "networks/FCN-Alexnet-Pascal-VOC-CUSTOM/snapshot_iter_43710.caffemodel", "networks/FCN-Alexnet-Pascal-VOC-CUSTOM/pascal-voc-classes.txt", "networks/FCN-Alexnet-Pascal-VOC-CUSTOM/pascal-voc-colors.txt", SEGNET_DEFAULT_INPUT, "score_fr", maxBatchSize, precision, device, allowGPUFallback );
 	else if( networkType == FCN_ALEXNET_SYNTHIA_CVPR16 )
 		net = Create("networks/FCN-Alexnet-SYNTHIA-CVPR16/deploy.prototxt", "networks/FCN-Alexnet-SYNTHIA-CVPR16/snapshot_iter_1206700.caffemodel", "networks/FCN-Alexnet-SYNTHIA-CVPR16/synthia-cvpr16-labels.txt", "networks/FCN-Alexnet-SYNTHIA-CVPR16/synthia-cvpr16-train-colors.txt", SEGNET_DEFAULT_INPUT, SEGNET_DEFAULT_OUTPUT, maxBatchSize, precision, device, allowGPUFallback );
 	else if( networkType == FCN_ALEXNET_SYNTHIA_SUMMER_HD )
@@ -155,6 +159,8 @@ segNet* segNet::Create( int argc, char** argv )
 			type = segNet::FCN_ALEXNET_CITYSCAPES_HD;
 		else if( strcasecmp(modelName, "fcn-alexnet-pascal-voc") == 0 )
 			type = segNet::FCN_ALEXNET_PASCAL_VOC;
+		else if( strcasecmp(modelName, "fcn-alexnet-pascal-voc-custom") == 0 )
+			type = segNet::FCN_ALEXNET_PASCAL_VOC_CUSTOM;
 		else if( strcasecmp(modelName, "fcn-alexnet-synthia-cvpr16") == 0 )
 			type = segNet::FCN_ALEXNET_SYNTHIA_CVPR16;
 		else if( strcasecmp(modelName, "fcn-alexnet-synthia-summer-sd") == 0 || strcasecmp(modelName, "fcn-alexnet-synthia-summer") == 0)

@@ -837,7 +837,6 @@ bool PyDetectNet_Register( PyObject* module )
 
 	Py_INCREF(&pyDetection_Type);
 
-
 	/*
 	 * register detectNet type
 	 */

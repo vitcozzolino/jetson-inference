@@ -19,7 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
- 
+
 #include "cudaUtility.h"
 
 
@@ -45,7 +45,7 @@ __global__ void gpuSegOverlay( float4* input, const int in_width, const int in_h
 	if( !filter_linear )
 	{
 		// calculate coordinates in scores cell
-		const float cx = px * float(scores_dim.x);	
+		const float cx = px * float(scores_dim.x);
 		const float cy = py * float(scores_dim.y);
 
 		const int x1 = int(cx);
@@ -71,7 +71,7 @@ __global__ void gpuSegOverlay( float4* input, const int in_width, const int in_h
 
 			const float4 px_in = input[y_in * in_width + x_in];
 
-			const float alph = classColor.w / 255.0f;
+			const float alph = classColor.w  / 255.0f;
 			const float inva = 1.0f - alph;
 
 			output[y * out_width + x] = make_float4(
@@ -92,10 +92,10 @@ __global__ void gpuSegOverlay( float4* input, const int in_width, const int in_h
 
 		const int x1 = int(cx);
 		const int y1 = int(cy);
-			
+
 		const int x2 = x1 >= scores_dim.x - 1 ? x1 : x1 + 1;	// bounds check
 		const int y2 = y1 >= scores_dim.y - 1 ? y1 : y1 + 1;
-		
+
 		const uchar4 classIdx = make_uchar4(LOOKUP_CLASS_MAP(x1, y1),
 									 LOOKUP_CLASS_MAP(x2, y1),
 									 LOOKUP_CLASS_MAP(x2, y2),
@@ -141,8 +141,11 @@ __global__ void gpuSegOverlay( float4* input, const int in_width, const int in_h
 
 			const float4 px_in = input[y_in * in_width + x_in];
 
-			const float alph = classColor.w / 255.0f;
-			const float inva = 1.0f - alph;
+			// const float alph = classColor.w  / 255.0f;
+			// const float inva = 1.0f - alph;
+
+			const float alph = 0.3;
+			const float inva = 0.7;
 
 			output[y * out_width + x] = make_float4(
 				alph * classColor.x + inva * px_in.x,
@@ -171,7 +174,7 @@ cudaError_t cudaSegOverlay( float4* input, uint32_t in_width, uint32_t in_height
 	const dim3 gridDim(iDivUp(out_width,blockDim.x), iDivUp(out_height,blockDim.y));
 
 	#define LAUNCH_OVERLAY_KERNEL(filter, mask) gpuSegOverlay<filter, mask><<<gridDim, blockDim, 0, stream>>>(input, in_width, in_height, output, out_width, out_height, class_colors, scores, scores_dim)
-	
+
 	if( filter_linear )
 	{
 		if( mask_only )
@@ -189,7 +192,3 @@ cudaError_t cudaSegOverlay( float4* input, uint32_t in_width, uint32_t in_height
 
 	return CUDA(cudaGetLastError());
 }
-
-
-
-
